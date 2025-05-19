@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>טריוויה פרנה ברנקה</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --main-bg: linear-gradient(135deg, #232526 0%, #414345 100%);
+      --main-fg: #fff;
+      --container-bg: rgba(30, 30, 30, 0.95);
+      --button-bg: #3e4a5a;
+      --button-hover: #5a7a6e;
+      --button-fg: #fff;
+      --accent: #ffe082;
+      --correct: #aeea00;
+      --wrong: #ff8a65;
+      --progress-bg: #444;
+      --progress-fg: #ffe082;
+      --timer-bg: #222;
+      --timer-fg: #ffe082;
+    }
+    body[data-theme="light"] {
+      --main-bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      --main-fg: #222;
+      --container-bg: rgba(255,255,255,0.95);
+      --button-bg: #ffe082;
+      --button-hover: #ffd54f;
+      --button-fg: #222;
+      --accent: #3e4a5a;
+      --correct: #43a047;
+      --wrong: #e53935;
+      --progress-bg: #eee;
+      --progress-fg: #3e4a5a;
+      --timer-bg: #ffe082;
+      --timer-fg: #3e4a5a;
+    }
+    body {
+      background: var(--main-bg);
+      color: var(--main-fg);
+      font-family: 'Assistant', 'Rubik', 'Alef', Arial, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.6s;
+      position: relative;
+      overflow-x: hidden;
+    }
+    .bottle-img {
+      position: fixed;
+      bottom: 0;
+      right: 50%;
+      transform: translateX(50%);
+      z-index: 50;
+      width: 180px;
+      max-width: 60vw;
+      opacity: 0.92;
+      pointer-events: none;
+      user-select: none;
+      filter: drop-shadow(0 0 24px #0006);
+      transition: width 0.3s, opacity 0.3s;
+    }
+    @media (max-width: 600px) {
+      .bottle-img {
+        width: 90px;
+        max-width: 50vw;
+        opacity: 0.95;
+      }
+    }
+    .logo-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 12px;
+      margin-top: 8px;
+    }
+    .bottle-logo {
+      width: 110px;
+      max-width: 38vw;
+      height: auto;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px #0005, 0 1px 8px #2222;
+      background: #232526;
+      padding: 8px 8px 4px 8px;
+      display: block;
+      transition: width 0.3s, box-shadow 0.3s;
+    }
+    @media (max-width: 600px) {
+      .bottle-logo {
+        width: 64px;
+        max-width: 60vw;
+        padding: 5px 5px 2px 5px;
+      }
+      .logo-box {
+        margin-bottom: 7px;
+        margin-top: 4px;
+      }
+    }
+    .container {
+      background: var(--container-bg);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      padding: 32px 24px;
+      max-width: 420px;
+      width: 92vw;
+      margin: 24px auto;
+      text-align: right;
+      position: relative;
+      z-index: 200;
+      transition: background 0.6s, color 0.6s;
+      padding-top: 18px;
+    }
+    h1 {
+      font-size: 2.1em;
+      margin-bottom: 0.5em;
+      letter-spacing: 1px;
+      font-family: 'Rubik', 'Assistant', sans-serif;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.4em;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: var(--progress-bg);
+      border-radius: 8px;
+      margin-bottom: 18px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px #0002;
+    }
+    .progress {
+      height: 100%;
+      background: var(--progress-fg);
+      width: 0%;
+      transition: width 0.5s cubic-bezier(.4,2,.6,1);
+    }
+    .question {
+      font-size: 1.25em;
+      margin-bottom: 1.1em;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .answers {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 1.5em;
+    }
+    button {
+      background: var(--button-bg);
+      color: var(--button-fg);
+      border: none;
+      border-radius: 18px;
+      padding: 14px 0;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      font-family: inherit;
+      box-shadow: 0 2px 8px #0001;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.7em;
+    }
+    button:hover:not(:disabled) {
+      background: var(--button-hover);
+      transform: scale(1.03);
+    }
+    button:disabled {
+      opacity: 0.7;
+      cursor: default;
+    }
+    .feedback {
+      font-size: 1.1em;
+      margin-bottom: 1.2em;
+      min-height: 2em;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    .score {
+      font-size: 1.3em;
+      margin-top: 1.5em;
+      font-weight: bold;
+    }
+    .result {
+      font-size: 1.5em;
+      margin-top: 1em;
+      color: var(--accent);
+      font-weight: bold;
+      text-shadow: 0 2px 8px #0008;
+    }
+    .timer {
+      background: var(--timer-bg);
+      color: var(--timer-fg);
+      border-radius: 12px;
+      padding: 6px 18px;
+      font-size: 1.1em;
+      font-weight: bold;
+      display: inline-block;
+      margin-bottom: 1em;
+      box-shadow: 0 2px 8px #0002;
+      letter-spacing: 1px;
+    }
+    .night-day-toggle {
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+      z-index: 2;
+      color: var(--accent);
+      transition: color 0.3s;
+    }
+    .share-btns {
+      display: flex;
+      gap: 16px;
+      margin-top: 1.2em;
+      justify-content: flex-end;
+    }
+    .share-btns button {
+      background: #25d366;
+      color: #fff;
+      font-size: 1.1em;
+      padding: 10px 18px;
+      border-radius: 16px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .share-btns button.twitter {
+      background: #1da1f2;
+    }
+    .share-btns button:hover {
+      filter: brightness(1.1);
+    }
+    .bonus {
+      background: linear-gradient(90deg, #ffe082 0%, #ffb300 100%);
+      color: #3e4a5a;
+      border-radius: 18px;
+      padding: 12px 18px;
+      font-size: 1.1em;
+      font-weight: bold;
+      margin-bottom: 1.2em;
+      box-shadow: 0 2px 8px #0002;
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+      justify-content: flex-end;
+    }
+    .cert {
+      background: #fffde7;
+      color: #3e4a5a;
+      border-radius: 18px;
+      padding: 18px 12px;
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-top: 1.5em;
+      box-shadow: 0 2px 12px #0002;
+      text-align: center;
+      border: 2px dashed #ffe082;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .cert .medal {
+      font-size: 2.5em;
+      margin-bottom: 0.2em;
+    }
+    .last-score {
+      font-size: 1em;
+      color: var(--accent);
+      margin-bottom: 0.7em;
+      text-align: right;
+    }
+    .name-input {
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+      margin-bottom: 1.2em;
+    }
+    .name-input input {
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      font-size: 1em;
+      font-family: inherit;
+      outline: none;
+      margin-right: 0.5em;
+    }
+    @media (max-width: 500px) {
+      .container { padding: 12px 2vw; }
+      h1 { font-size: 1.1em; }
+      .question { font-size: 1em; }
+      button { font-size: 1em; }
+      .bottle-img { width: 90px; max-width: 50vw; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="night-day-toggle" id="themeBtn" title="החלף מצב יום/לילה">🌙</button>
+    <div class="logo-box">
+      <img src="https://assets.liquidcommerce.co/catalog/img/cfca3eff-190d-4b58-82a2-26abed7dcda6.jpg" alt="בקבוק פרנה ברנקה" class="bottle-logo" draggable="false" />
+    </div>
+    <h1>טריוויה פרנה ברנקה <span>🍸</span></h1>
+    <div id="game">
+      <!-- תוכן המשחק יוזן כאן -->
+    </div>
+  </div>
+  <audio id="audio-correct" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae3e2.mp3" preload="auto"></audio>
+  <audio id="audio-wrong" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae3e2.mp3" preload="auto"></audio>
+  <audio id="audio-bonus" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae3e2.mp3" preload="auto"></audio>
+  <script>
+    // שאלות, כולל אייקונים
+    const questions = [
+      {
+        question: 'מהו מקורו של פרנה ברנקה? 🇮🇹',
+        answers: [
+          'איטליה 🇮🇹',
+          'ברזיל 🇧🇷',
+          'גרמניה 🇩🇪',
+          'צרפת 🇫🇷'
+        ],
+        correct: 0,
+        icon: '🌍'
+      },
+      {
+        question: 'באיזה קוקטייל פרנה ברנקה הוא מרכיב עיקרי? 🍹',
+        answers: [
+          'פרנה קולאדה 🥥',
+          'פרנה סודה 🥤',
+          'פרנה טוניק 🍸',
+          'פרנה מרגריטה 🍋'
+        ],
+        correct: 1,
+        icon: '🍹'
+      },
+      {
+        question: 'מהו השימוש המסורתי של פרנה ברנקה? 💊',
+        answers: [
+          'משקה אנרגיה ⚡',
+          'תרופה לעיכול 🩺',
+          'מרכיב בבישול 🍲',
+          'קינוח מתוק 🍰'
+        ],
+        correct: 1,
+        icon: '💊'
+      },
+      {
+        question: 'באיזו מדינה נחשב פרנה ברנקה למשקה לאומי? 🌎',
+        answers: [
+          'ארגנטינה 🇦🇷',
+          'איטליה 🇮🇹',
+          'ישראל 🇮🇱',
+          'ארה"ב 🇺🇸'
+        ],
+        correct: 0,
+        icon: '🇦🇷'
+      },
+      {
+        question: 'מהו הכינוי של חובבי פרנה ברנקה? 😎',
+        answers: [
+          'ברנקיסטים 🦅',
+          'ברנקאים 🧑‍🎓',
+          'ברנקים 🧉',
+          'ברנקה-בויז 👬'
+        ],
+        correct: 1,
+        icon: '😎'
+      }
+    ];
+    // שאלה בונוס
+    const bonusQuestion = {
+      question: 'איזה עשב עיקרי מעניק לפרנה את טעמו המריר? 🌿',
+      answers: [
+        'גנטיאנה',
+        'רוזמרין',
+        'נענע',
+        'כוסברה'
+      ],
+      correct: 0,
+      icon: '🌿',
+      bonus: true
+    };
+    // משפטי עידוד
+    const encouragements = [
+      'אתה על הגל המריר! 🏄‍♂️',
+      'ברנקה עושה אותך חכם יותר! 🧠',
+      'עוד שאלה, עוד שלוק!',
+      'הברנקה זורם בך! 🍾',
+      'תשובה יפה, תמשיך ככה!',
+      'הברנקאים מצדיעים לך! 🦅',
+      'המרירות משתלמת!',
+      'הברנקה קורא לך!',
+      'הידע שלך חריף כמו פרנה! 🌶️',
+      'הברנקה – לא לכולם, אבל לך כן!'
+    ];
+    // תוצאות
+    const results = [
+      { min: 6, text: 'ברנקה זורם לך בעורקים! 🍾' },
+      { min: 5, text: 'תלמיד מריר – יש לך פוטנציאל!' },
+      { min: 3, text: 'צריך עוד כמה שוטים...' },
+      { min: 0, text: 'הגיע הזמן להכיר את פרנה מקרוב!' }
+    ];
+
+    let current = 0;
+    let score = 0;
+    let timer = null;
+    let timeLeft = 15;
+    let bonusMode = false;
+    let userName = '';
+    const gameDiv = document.getElementById('game');
+    const audioCorrect = document.getElementById('audio-correct');
+    const audioWrong = document.getElementById('audio-wrong');
+    const audioBonus = document.getElementById('audio-bonus');
+
+    function fadeOutIn(next) {
+      gameDiv.style.opacity = 1;
+      gameDiv.style.transition = 'opacity 0.5s';
+      gameDiv.style.opacity = 0;
+      setTimeout(() => {
+        next();
+        gameDiv.style.opacity = 0;
+        setTimeout(() => {
+          gameDiv.style.opacity = 1;
+        }, 50);
+      }, 500);
+    }
+    function showProgress() {
+      const total = bonusMode ? questions.length + 1 : questions.length;
+      const val = Math.min(current + 1, total);
+      return `<div class="progress-bar"><div class="progress" style="width:${(val/total)*100}%"></div></div>`;
+    }
+    function showTimer() {
+      return `<div class="timer" id="timer">⏰ ${timeLeft} שניות</div>`;
+    }
+    function showEncouragement() {
+      return `<div class="feedback" style="color:var(--accent)">${encouragements[Math.floor(Math.random()*encouragements.length)]}</div>`;
+    }
+    function showNameInput() {
+      let lastScore = localStorage.getItem('franka-last-score');
+      return `
+        <div class="name-input">
+          <label for="username">שם לתעודה:</label>
+          <input id="username" maxlength="12" placeholder="הכנס שם..." autocomplete="off" />
+          <button onclick="startGame()">התחל</button>
+        </div>
+        ${lastScore ? `<div class="last-score">הציון האחרון שלך: ${lastScore}</div>` : ''}
+      `;
+    }
+    function showQuestion() {
+      clearInterval(timer);
+      timeLeft = 15;
+      const q = bonusMode ? bonusQuestion : questions[current];
+      gameDiv.innerHTML = `
+        ${showProgress()}
+        ${showTimer()}
+        <div class="question">${q.icon || ''} ${q.question}</div>
+        <div class="answers">
+          ${q.answers.map((a, i) => `<button onclick="answer(${i})">${a}</button>`).join('')}
+        </div>
+        <div class="feedback" id="feedback"></div>
+        ${showEncouragement()}
+      `;
+      startTimer();
+    }
+    function startTimer() {
+      timer = setInterval(() => {
+        timeLeft--;
+        const t = document.getElementById('timer');
+        if (t) t.textContent = `⏰ ${timeLeft} שניות`;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          lockAnswer();
+        }
+      }, 1000);
+    }
+    function lockAnswer() {
+      const q = bonusMode ? bonusQuestion : questions[current];
+      const feedback = document.getElementById('feedback');
+      const allBtns = document.querySelectorAll('.answers button');
+      allBtns.forEach(btn => btn.disabled = true);
+      feedback.textContent = 'הזמן נגמר!';
+      feedback.style.color = 'var(--wrong)';
+      setTimeout(() => {
+        nextStep();
+      }, 1200);
+    }
+    function answer(idx) {
+      clearInterval(timer);
+      const q = bonusMode ? bonusQuestion : questions[current];
+      const feedback = document.getElementById('feedback');
+      const allBtns = document.querySelectorAll('.answers button');
+      allBtns.forEach(btn => btn.disabled = true);
+      if (idx === q.correct) {
+        score++;
+        feedback.textContent = 'נכון! 🍀';
+        feedback.style.color = 'var(--correct)';
+        (bonusMode ? audioBonus : audioCorrect).play();
+      } else {
+        feedback.textContent = 'לא נכון! 😬';
+        feedback.style.color = 'var(--wrong)';
+        audioWrong.play();
+      }
+      setTimeout(() => {
+        nextStep();
+      }, 1200);
+    }
+    function nextStep() {
+      if (bonusMode) {
+        showResult();
+        bonusMode = false;
+        return;
+      }
+      current++;
+      if (current < questions.length) {
+        fadeOutIn(showQuestion);
+      } else if (score === questions.length) {
+        // בונוס
+        bonusMode = true;
+        fadeOutIn(showQuestion);
+      } else {
+        fadeOutIn(showResult);
+      }
+    }
+    function showResult() {
+      localStorage.setItem('franka-last-score', score);
+      let resultText = results.find(r => score >= r.min).text;
+      let cert = '';
+      if (score === questions.length + 1) {
+        cert = `<div class="cert"><span class="medal">🏅</span>תעודת ברנקאי מוסמך<br>${userName ? userName : '---'}</div>`;
+      }
+      gameDiv.innerHTML = `
+        <div class="score">ענית נכון על ${score} מתוך ${questions.length + (score === questions.length + 1 ? 1 : 0)}!</div>
+        <div class="result">${resultText}</div>
+        ${cert}
+        <div class="share-btns">
+          <button onclick="shareWhatsapp()"><span>🟢</span> שתף ב־WhatsApp</button>
+          <button class="twitter" onclick="shareTwitter()"><span>🐦</span> שתף ב־Twitter</button>
+        </div>
+        <button onclick="restart()">נסה שוב</button>
+      `;
+    }
+    function restart() {
+      current = 0;
+      score = 0;
+      bonusMode = false;
+      fadeOutIn(showNameScreen);
+    }
+    function showNameScreen() {
+      gameDiv.innerHTML = showNameInput();
+      const input = document.getElementById('username');
+      if (input) {
+        input.focus();
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter') startGame();
+        });
+      }
+    }
+    function startGame() {
+      const input = document.getElementById('username');
+      userName = input ? input.value.trim() : '';
+      current = 0;
+      score = 0;
+      bonusMode = false;
+      fadeOutIn(showQuestion);
+    }
+    // שיתוף
+    function shareWhatsapp() {
+      const txt = `עניתי על ${score} מתוך ${questions.length + (score === questions.length + 1 ? 1 : 0)} בטריוויה של פרנה ברנקה! 🍸 תנסו גם אתם!`;
+      const url = encodeURIComponent(window.location.href);
+      window.open(`https://wa.me/?text=${encodeURIComponent(txt + ' ' + url)}`);
+    }
+    function shareTwitter() {
+      const txt = `עניתי על ${score} מתוך ${questions.length + (score === questions.length + 1 ? 1 : 0)} בטריוויה של פרנה ברנקה! 🍸 תנסו גם אתם!`;
+      const url = encodeURIComponent(window.location.href);
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(txt)}&url=${url}`);
+    }
+    // מצב לילה/יום
+    const themeBtn = document.getElementById('themeBtn');
+    function setTheme(theme) {
+      document.body.setAttribute('data-theme', theme);
+      themeBtn.textContent = theme === 'light' ? '🌞' : '🌙';
+      localStorage.setItem('franka-theme', theme);
+    }
+    themeBtn.onclick = () => {
+      const currentTheme = document.body.getAttribute('data-theme') || 'dark';
+      setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    };
+    // טעינת ערכת צבעים מהאחסון
+    (function(){
+      const saved = localStorage.getItem('franka-theme');
+      setTheme(saved === 'light' ? 'light' : 'dark');
+    })();
+    // התחלה
+    fadeOutIn(showNameScreen);
+  </script>
+</body>
+</html>
