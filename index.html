@@ -321,9 +321,9 @@
       <!-- תוכן המשחק יוזן כאן -->
     </div>
   </div>
-  <audio id="audio-correct" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae3e2.mp3" preload="auto"></audio>
-  <audio id="audio-wrong" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae3e2.mp3" preload="auto"></audio>
-  <audio id="audio-bonus" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae3e2.mp3" preload="auto"></audio>
+<audio id="audio-correct" src="correct.mp3" preload="auto"></audio>
+<audio id="audio-wrong" src="wrong.mp3" preload="auto"></audio>
+<audio id="audio-bonus" src="bonus.mp3" preload="auto"></audio>
   <script>
     // שאלות, כולל אייקונים
     const questions = [
@@ -381,7 +381,50 @@
         ],
         correct: 1,
         icon: '😎'
-      }
+      },{
+  question: 'איזה צבע מזוהה עם פרנה ברנקה? 🎨',
+  answers: [
+    'שחור 🖤',
+    'ירוק כהה 💚',
+    'חום 🍫',
+    'כחול כהה 💙'
+  ],
+  correct: 1,
+  icon: '🎨'
+},
+{
+  question: 'מה מסמל הלוגו של פרנה ברנקה? 🦅',
+  answers: [
+    'נשר עף 🦅',
+    'מגדל פיזה 🗼',
+    'כוס משקה 🍷',
+    'שמש זורחת 🌞'
+  ],
+  correct: 0,
+  icon: '🦅'
+},
+{
+  question: 'מה המשמעות של "פרנה"? 🍃',
+  answers: [
+    'עשב רפואי 💊',
+    'משקה קל 🥤',
+    'שם משפחה 🇮🇹',
+    'שם של הר 🌄'
+  ],
+  correct: 0,
+  icon: '🍃'
+},
+{
+  question: 'כמה אלכוהול יש בפרנה ברנקה? 🍸',
+  answers: [
+    '20%',
+    '33%',
+    '39%',
+    '45%'
+  ],
+  correct: 2,
+  icon: '🍸'
+}
     ];
     // שאלה בונוס
     const bonusQuestion = {
@@ -582,12 +625,12 @@
     // שיתוף
     function shareWhatsapp() {
       const txt = `עניתי על ${score} מתוך ${questions.length + (score === questions.length + 1 ? 1 : 0)} בטריוויה של פרנה ברנקה! 🍸 תנסו גם אתם!`;
-      const url = encodeURIComponent(window.location.href);
+      const url = (window.location.href);
       window.open(`https://wa.me/?text=${encodeURIComponent(txt + ' ' + url)}`);
     }
     function shareTwitter() {
       const txt = `עניתי על ${score} מתוך ${questions.length + (score === questions.length + 1 ? 1 : 0)} בטריוויה של פרנה ברנקה! 🍸 תנסו גם אתם!`;
-      const url = encodeURIComponent(window.location.href);
+      const url = (window.location.href);
       window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(txt)}&url=${url}`);
     }
     // מצב לילה/יום
